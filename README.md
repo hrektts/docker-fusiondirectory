@@ -31,11 +31,12 @@ docker run --name ldap -p 389:389 \
   -e FD_ADMIN_PASSWORD="fdadminpwd" \
   -d hrektts/fusiondirectory-openldap:latest
 
-docker run --name fusiondirectory -p 10080:80 \
-  --link ldap:ldap -d hrektts/fusiondirectory:latest
+docker run --name fusiondirectory -p 10080:80 --link ldap:ldap \
+  -d hrektts/fusiondirectory:latest
 ```
 
-Access `http://localhost/fd` with your browser and login using the administrator account:
+Access `http://localhost:10080/fd` with your browser and login using the
+administrator account:
 
 - username: fd-admin
 - password: (the value you specified in FD_ADMIN_PASSWORD)
