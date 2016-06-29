@@ -1,39 +1,36 @@
-FROM hrektts/ubuntu:16.04.20160525
+FROM hrektts/nginx:latest
 MAINTAINER mps299792458@gmail.com
 
-ENV NGINX_VERSION 1.10.0-0ubuntu0.16.04.2
-ENV FUSIONDIRECTORY_VERSION 1.0.8.8-3ubuntu2
-ENV LDAP_ROOT admin
+ENV FUSIONDIRECTORY_VERSION=1.0.13-1
 
-RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 \
-    --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
- && echo "deb http://nginx.org/packages/ubuntu xenial main" \
-    > /etc/apt/sources.list.d/nginx-stable-xenial.list \
+RUN rm -f /etc/apt/sources.list.d/* \
+ && apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys E184859262B4981F \
+ && echo "deb http://repos.fusiondirectory.org/debian-jessie jessie main" \
+    > /etc/apt/sources.list.d/fusiondirectory-jessie.list \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-      nginx=${NGINX_VERSION} \
-      fusiondirectory=${FUSIONDIRECTORY_VERSION} \
-      fusiondirectory-plugin-autofs \
-      fusiondirectory-plugin-certificates \
-      fusiondirectory-plugin-gpg \
-      fusiondirectory-plugin-ldapdump \
-      fusiondirectory-plugin-ldapmanager \
-      fusiondirectory-plugin-mail \
-      fusiondirectory-plugin-personal \
-      fusiondirectory-plugin-ssh \
-      fusiondirectory-plugin-sudo \
-      fusiondirectory-plugin-systems \
-      fusiondirectory-plugin-weblink \
-      fusiondirectory-plugin-webservice \
-      fusiondirectory-webservice-shell \
-      php-mdb2 \
-      php7.0-mbstring \
+    argonaut-server \
+    fusiondirectory=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-argonaut=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-autofs=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-certificates=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-gpg=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-ldapdump=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-ldapmanager=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-mail=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-postfix=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-ssh=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-sudo=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-systems=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-weblink=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-plugin-webservice=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-smarty3-acl-render=${FUSIONDIRECTORY_VERSION} \
+    fusiondirectory-webservice-shell=${FUSIONDIRECTORY_VERSION} \
+    php-mdb2 \
+    php5-fpm \
  && rm -rf /var/lib/apt/lists/*
 
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
- && ln -sf /dev/stderr /var/log/nginx/error.log
-
-RUN export TARGET=/etc/php/7.0/fpm/php.ini \
+RUN export TARGET=/etc/php5/fpm/php.ini \
  && sed -i -e "s:^;\(opcache.enable\) *=.*$:\1=1:" ${TARGET} \
  && sed -i -e "s:^;\(opcache.enable_cli\) *=.*$:\1=0:" ${TARGET} \
  && sed -i -e "s:^;\(opcache.memory_consumption\) *=.*$:\1=1024:" ${TARGET} \
@@ -42,7 +39,10 @@ RUN export TARGET=/etc/php/7.0/fpm/php.ini \
  && sed -i -e "s:^;\(opcache.revalidate_path\) *=.*$:\1=1:" ${TARGET} \
  && sed -i -e "s:^;\(opcache.error_log\) *=.*$:\1=/dev/null:" ${TARGET} \
  && sed -i -e "s:^;\(opcache.log_verbosity_level\) *=.*$:\1=1:" ${TARGET} \
- && mkdir -p /run/php \
+ && unset TARGET
+
+RUN export TARGET=/etc/php5/fpm/pool.d/www.conf \
+ && sed -i -e "s:^\(listen *= *\).*$:\1/run/php5-fpm.sock:" ${TARGET} \
  && unset TARGET
 
 COPY entrypoint.sh /sbin/entrypoint.sh

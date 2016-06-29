@@ -18,32 +18,37 @@ server {
     #
     # include snippets/snakeoil.conf;
 
-    root /usr/share/fusiondirectory/html;
-
-    index index.php
-
     server_name _;
 
     location / {
-        # First attempt to serve request as file, then
-        # as directory, then fall back to displaying a 404.
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
         try_files $uri $uri/ =404;
     }
 
-    location ~ ^/.*\.php(/|$) {
-        include snippets/fastcgi-php.conf;
-        include /etc/nginx/fastcgi_params;
-        # do not cache dynamic content
-        expires off;
-        fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
-        fastcgi_param DOCUMENT_ROOT $realpath_root;
-    }
+    location ^~ /fd {
+        alias /usr/share/fusiondirectory/html;
+        index index.php;
+        try_files $uri $uri/ =404;
 
-    # deny access to .htaccess files, if Apache's document root
-    # concurs with nginx's one
-    #
-    #location ~ /\.ht {
-    #       deny all;
-    #}
+        location ~ (images|include|javascript|plugins|themes)/(.+)$ {
+            try_files /$1/$2 =404;
+        }
+
+        location ~ .+[^/]\.php(/|$) {
+            fastcgi_split_path_info ^/fd(.+?\.php)(.*)$;
+            set $orig_path $fastcgi_path_info;
+
+            try_files $fastcgi_script_name =404;
+
+            fastcgi_pass unix:/run/php5-fpm.sock;
+            fastcgi_index index.php;
+            include fastcgi_params;
+            include /etc/nginx/fastcgi_params;
+
+            fastcgi_param SCRIPT_FILENAME $request_filename;
+            fastcgi_param PATH_INFO $orig_path;
+            fastcgi_param PATH_TRANSLATED $document_root$orig_path;
+        }
+    }
 }

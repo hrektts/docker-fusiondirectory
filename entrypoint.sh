@@ -3,13 +3,21 @@ set -e
 
 printf "Starting FusionDirectory ... ";
 
+LDAP_DOMAIN=${LDAP_ENV_LDAP_DOMAIN:-${LDAP_DOMAIN}}
 if [ -z ${LDAP_DOMAIN} ] ; then
     printf "\n\nLDAP_DOMAIN is not defined!\n"
     exit 1
 fi
 
-if [ -z ${LDAP_ROOTPW} ] ; then
-    printf "\n\nLDAP_ROOTPW is not defined!\n"
+LDAP_HOST=${LDAP_PORT_389_TCP_ADDR:-${LDAP_HOST}}
+if [ -z ${LDAP_HOST} ] ; then
+    printf "\n\nLDAP_HOST is not defined!\n"
+    exit 1
+fi
+
+LDAP_ADMIN_PASSWORD=${LDAP_ENV_LDAP_ADMIN_PASSWORD:-${LDAP_ADMIN_PASSWORD}}
+if [ -z ${LDAP_ADMIN_PASSWORD} ] ; then
+    printf "\n\nLDAP_ADMIN_PASSWORD is not defined!\n"
     exit 1
 fi
 
@@ -24,26 +32,27 @@ for elem in "${domain_elems[@]}" ; do
     fi
 done
 
-if [ -z ${LDAP_ROOTDN} ] ; then
-    BASEDN="dc=$(echo ${LDAP_DOMAIN} | sed 's/^\.//; s/\.$//; s/\./,dc=/g')"
-    LDAP_ROOTDN="cn=${LDAP_ROOT},${BASEDN}"
+if [ -z ${LDAP_ADMIN_DN} ] ; then
+    BASE_DN="dc=$(echo ${LDAP_DOMAIN} | sed 's/^\.//; s/\.$//; s/\./,dc=/g')"
+    : ${LDAP_ADMIN:="admin"}
+    LDAP_ADMIN_DN="cn=${LDAP_ADMIN},${BASE_DN}"
 
-    printf "\n\n!!!!LDAP_ROOTDN is not defined and set to '${LDAP_ROOTDN}'!!!!\n"
+    printf "\n\nLDAP_ADMIN_DN is not defined and set to '${LDAP_ADMIN_DN}'\n"
 fi
 
+LDAP_TLS=${LDAP_TLS:-"false"}
+LDAP_TLS=${LDAP_ENV_LDAP_TLS:-${LDAP_TLS}}
+
+LDAP_SCHEME=${LDAP_SCHEME:-"ldap"}
+LDAP_COMM_PORT=${LDAP_COMM_PORT:-389}
+if ${LDAP_TLS}; then
+    LDAP_SCHEME="ldaps"
+    LDAP_COMM_PORT=636
+fi
 
 cat <<EOF > /etc/fusiondirectory/fusiondirectory.conf
 <?xml version="1.0"?>
 <conf>
-
-  <!-- Services **************************************************************
-    Old services that are not based on simpleService needs to be listed here
-   -->
-  <serverservice>
-    <tab class="serviceDHCP"        />
-    <tab class="serviceDNS"         />
-  </serverservice>
-
   <!-- Main section **********************************************************
        The main section defines global settings, which might be overridden by
        each location definition inside.
@@ -61,11 +70,10 @@ cat <<EOF > /etc/fusiondirectory/fusiondirectory.conf
 
     <!-- Location definition -->
     <location name="default"
-        config="ou=fusiondirectory,ou=configs,ou=systems,${suffix}">
-
-        <referral URI="${LDAP_SERVER_URL}/${suffix}"
-                        adminDn="$LDAP_ROOTDN"
-                        adminPassword="$LDAP_ROOTPW" />
+    >
+        <referral URI="${LDAP_SCHEME}://${LDAP_HOST}:${LDAP_COMM_PORT}/${suffix}"
+                        adminDn="${LDAP_ADMIN_DN}"
+                        adminPassword="${LDAP_ADMIN_PASSWORD}" />
     </location>
   </main>
 </conf>

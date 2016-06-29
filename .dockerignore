@@ -1,0 +1,8 @@
+.git
+.gitignore
+.travis.yml
+LICENSE
+Makefile
+README.md
+VERSION
+test
