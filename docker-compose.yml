@@ -1,0 +1,28 @@
+version: '2'
+services:
+  openldap:
+    restart: always
+    image: hrektts/fusiondirectory-openldap:latest
+    environment:
+      - LDAP_ORGANISATION="Example Organization"
+      - LDAP_DOMAIN=example.org
+      - LDAP_ADMIN_PASSWORD=adminpwd
+      - LDAP_CONFIG_PASSWORD=configpwd
+
+      - LDAP_READONLY_USER=true
+      - LDAP_READONLY_USER_USERNAME=reader
+      - LDAP_READONLY_USER_PASSWORD=readerpwd
+
+      - FD_ADMIN_PASSWORD=fdadminpwd
+
+  fusiondirectory:
+    restart: always
+    image: hrektts/fusiondirectory:latest
+    ports:
+      - "10080:80"
+    links:
+      - openldap
+    environment:
+      - LDAP_DOMAIN=example.org
+      - LDAP_HOST=openldap
+      - LDAP_ADMIN_PASSWORD=adminpwd
