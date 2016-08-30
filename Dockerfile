@@ -1,7 +1,7 @@
 FROM hrektts/nginx:latest
 MAINTAINER mps299792458@gmail.com
 
-ENV FUSIONDIRECTORY_VERSION=1.0.14-1
+ENV FUSIONDIRECTORY_VERSION=1.0.15-1
 
 RUN rm -f /etc/apt/sources.list.d/* \
  && apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys E184859262B4981F \
