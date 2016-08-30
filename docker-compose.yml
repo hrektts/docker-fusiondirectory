@@ -20,7 +20,7 @@ services:
     image: hrektts/fusiondirectory:latest
     ports:
       - "10080:80"
-    links:
+    depends_on:
       - openldap
     environment:
       - LDAP_DOMAIN=example.org
