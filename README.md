@@ -10,7 +10,14 @@ container image.
 Quick Start
 -----------
 
-You can launch the image using the docker command:
+The easiest way to launch the container is using [docker-compose](https://docs.docker.com/compose/):
+
+``` shell
+wget https://raw.githubusercontent.com/hrektts/docker-fusiondirectory/master/docker-compose.yml
+docker-compose up
+```
+
+Otherwise, you can manually launch the container using the docker command:
 
 ``` shell
 docker run -p 80:80 \
@@ -20,15 +27,15 @@ docker run -p 80:80 \
   -d hrektts/fusiondirectory:latest
 ```
 
-Alternatively, you can link this image with previously launched LDAP container
-image as follows:
+Alternatively, you can link this container with previously launched LDAP
+container image as follows:
 
 ``` shell
 docker run --name ldap -p 389:389 \
   -e LDAP_ORGANISATION="Example Organization" \
   -e LDAP_DOMAIN="example.org" \
   -e LDAP_ADMIN_PASSWORD="password" \
-  -e FD_ADMIN_PASSWORD="fdadminpwd" \
+  -e FD_ADMIN_PASSWORD="fdadminpassword" \
   -d hrektts/fusiondirectory-openldap:latest
 
 docker run --name fusiondirectory -p 10080:80 --link ldap:ldap \
