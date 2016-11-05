@@ -5,7 +5,7 @@ services:
 
 env:
   global:
-    - DOCKER_VERSION=1.12.1-0~trusty
+    - DOCKER_VERSION=1.12.3-0~trusty
 
 before_install:
   - apt-cache madison docker-engine
