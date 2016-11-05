@@ -1,10 +1,10 @@
 all: build
 
 build:
-	@docker build --tag=hrektts/fusiondirectory:latest .
+	@docker build -t hrektts/fusiondirectory:latest .
 
 release: build
-	@docker build --tag=hrektts/fusiondirectory:$(shell cat VERSION) .
+	@docker build -t hrektts/fusiondirectory:$(shell cat VERSION) .
 
 .PHONY: test
 test:
