@@ -1,5 +1,5 @@
 #!/bin/bash
 set -e
 
-/etc/init.d/php5-fpm start
+/etc/init.d/php7.0-fpm start
 /usr/sbin/nginx -g 'daemon off;'
