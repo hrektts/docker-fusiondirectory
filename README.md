@@ -1,13 +1,12 @@
 # docker-fusiondirectory
 
-[![Travis Build Status](https://travis-ci.org/hrektts/docker-fusiondirectory.svg?branch=master)](https://travis-ci.org/hrektts/docker-fusiondirectory)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-
 Dockerfile to build a [FusionDirectory](https://www.fusiondirectory.org/)
 container image.
 
-Quick Start
------------
+[![Travis Build Status](https://travis-ci.org/hrektts/docker-fusiondirectory.svg?branch=master)](https://travis-ci.org/hrektts/docker-fusiondirectory)
+
+
+## Quick Start
 
 The easiest way to launch the container is using [docker-compose](https://docs.docker.com/compose/):
 
