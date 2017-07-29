@@ -1,5 +1,6 @@
 FROM nginx:latest
-MAINTAINER mps299792458@gmail.com
+LABEL maintainer="mps299792458@gmail.com" \
+      version="0.2.0"
 
 ENV FUSIONDIRECTORY_VERSION=1.2-1
 
