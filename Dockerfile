@@ -1,16 +1,10 @@
-FROM nginx:latest
+FROM nginx:1.16.1
 LABEL maintainer="mps299792458@gmail.com" \
-      version="0.2.0"
+      version="0.3.0"
 
-ENV FUSIONDIRECTORY_VERSION=1.2-1
+ENV FUSIONDIRECTORY_VERSION=1.2.3-4+deb10u1
 
 RUN rm -f /etc/apt/sources.list.d/* \
- && apt-get update \
- && apt-get install -y gnupg \
- && apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys D744D55EACDA69FF \
- && (echo "deb http://repos.fusiondirectory.org/fusiondirectory-current/debian-jessie jessie main"; \
-     echo "deb http://repos.fusiondirectory.org/fusiondirectory-extra/debian-jessie jessie main") \
-    > /etc/apt/sources.list.d/fusiondirectory-jessie.list \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     argonaut-server \
@@ -35,7 +29,7 @@ RUN rm -f /etc/apt/sources.list.d/* \
     php-fpm \
  && rm -rf /var/lib/apt/lists/*
 
-RUN export TARGET=/etc/php/7.0/fpm/php.ini \
+RUN export TARGET=/etc/php/7.3/fpm/php.ini \
  && sed -i -e "s:^;\(opcache.enable\) *=.*$:\1=1:" ${TARGET} \
  && sed -i -e "s:^;\(opcache.enable_cli\) *=.*$:\1=0:" ${TARGET} \
  && sed -i -e "s:^;\(opcache.memory_consumption\) *=.*$:\1=1024:" ${TARGET} \
@@ -46,8 +40,8 @@ RUN export TARGET=/etc/php/7.0/fpm/php.ini \
  && sed -i -e "s:^;\(opcache.log_verbosity_level\) *=.*$:\1=1:" ${TARGET} \
  && unset TARGET
 
-RUN export TARGET=/etc/php/7.0/fpm/pool.d/www.conf \
- && sed -i -e "s:^\(listen *= *\).*$:\1/run/php7.0-fpm.sock:" ${TARGET} \
+RUN export TARGET=/etc/php/7.3/fpm/pool.d/www.conf \
+ && sed -i -e "s:^\(listen *= *\).*$:\1/run/php7.3-fpm.sock:" ${TARGET} \
  && sed -i -e "s:^\(user *= *\).*$:\1nginx:" ${TARGET} \
  && unset TARGET
 
